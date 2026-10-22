@@ -4,9 +4,9 @@
 <title>ER Desk: Binary Search Tree and Heap in action</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#eef3f1;--card:#fff;--ink:#16302b;--mute:#5b7069;--line:#c9d8d3;--teal:#0f766e;--red:#c62f3a;--amb:#d98a0b;--grn:#2f8f4e;--cur:#fde68a;--new:#bfdbfe;--swap:#fecaca;--ok:#bbf7d0;--node:#f7fbfa}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b18;--card:#15262a;--ink:#e3f0ec;--mute:#93aba4;--line:#2a4440;--teal:#4fd1c0;--red:#ff6b75;--amb:#f5b94a;--grn:#5fd38a;--cur:#6b5a14;--new:#1e3a5f;--swap:#6b2228;--ok:#17502e;--node:#1b3033}}
-:root[data-theme="dark"]{--bg:#0e1b18;--card:#15262a;--ink:#e3f0ec;--mute:#93aba4;--line:#2a4440;--teal:#4fd1c0;--red:#ff6b75;--amb:#f5b94a;--grn:#5fd38a;--cur:#6b5a14;--new:#1e3a5f;--swap:#6b2228;--ok:#17502e;--node:#1b3033}
+:root{--on-teal:#fff;--on-red:#fff;--bg:#eef3f1;--card:#fff;--ink:#16302b;--mute:#5b7069;--line:#c9d8d3;--teal:#0f766e;--red:#c62f3a;--amb:#d98a0b;--grn:#2f8f4e;--cur:#fde68a;--new:#bfdbfe;--swap:#fecaca;--ok:#bbf7d0;--node:#f7fbfa}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b18;--card:#15262a;--ink:#e3f0ec;--mute:#93aba4;--line:#2a4440;--teal:#4fd1c0;--red:#ff6b75;--amb:#f5b94a;--grn:#5fd38a;--cur:#6b5a14;--new:#1e3a5f;--swap:#6b2228;--ok:#17502e;--node:#1b3033;--on-teal:#06201c;--on-red:#2a0508}}
+:root[data-theme="dark"]{--on-teal:#06201c;--on-red:#2a0508;--bg:#0e1b18;--card:#15262a;--ink:#e3f0ec;--mute:#93aba4;--line:#2a4440;--teal:#4fd1c0;--red:#ff6b75;--amb:#f5b94a;--grn:#5fd38a;--cur:#6b5a14;--new:#1e3a5f;--swap:#6b2228;--ok:#17502e;--node:#1b3033}
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *,*:before,*:after{box-sizing:inherit}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
@@ -17,9 +17,9 @@ p{margin:0}.mute{color:var(--mute)}
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:16px 0}
 label{display:flex;flex-direction:column;font-size:12px;color:var(--mute);gap:3px}
 input[type=number]{width:96px;padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
-button{font:inherit;font-weight:600;padding:8px 13px;border-radius:6px;border:1px solid var(--teal);background:var(--teal);color:#fff;cursor:pointer}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button{color:#06201c}}
-button.alt{background:transparent;color:var(--teal)}button.red{background:var(--red);border-color:var(--red);color:#fff}
+button{font:inherit;font-weight:600;padding:8px 13px;border-radius:6px;border:1px solid var(--teal);background:var(--teal);color:var(--on-teal);cursor:pointer}
+
+button.alt{background:transparent;color:var(--teal)}button.red{background:var(--red);border-color:var(--red);color:var(--on-red)}
 button:disabled{opacity:.45;cursor:not-allowed}
 button:focus-visible,input:focus-visible{outline:3px solid var(--amb);outline-offset:2px}
 .sep{width:1px;align-self:stretch;background:var(--line);margin:0 4px}

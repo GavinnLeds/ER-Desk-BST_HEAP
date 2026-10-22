@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ER Desk: Binary Search Tree and Heap in action</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f1;--card:#fff;--ink:#16302b;--mute:#5b7069;--line:#c9d8d3;--teal:#0f766e;--red:#c62f3a;--amb:#d98a0b;--grn:#2f8f4e;--cur:#fde68a;--new:#bfdbfe;--swap:#fecaca;--ok:#bbf7d0;--node:#f7fbfa}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b18;--card:#15262a;--ink:#e3f0ec;--mute:#93aba4;--line:#2a4440;--teal:#4fd1c0;--red:#ff6b75;--amb:#f5b94a;--grn:#5fd38a;--cur:#6b5a14;--new:#1e3a5f;--swap:#6b2228;--ok:#17502e;--node:#1b3033}}
+:root[data-theme="dark"]{--bg:#0e1b18;--card:#15262a;--ink:#e3f0ec;--mute:#93aba4;--line:#2a4440;--teal:#4fd1c0;--red:#ff6b75;--amb:#f5b94a;--grn:#5fd38a;--cur:#6b5a14;--new:#1e3a5f;--swap:#6b2228;--ok:#17502e;--node:#1b3033}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:26px;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:17px;margin:0}
+p{margin:0}.mute{color:var(--mute)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:16px 0}
+label{display:flex;flex-direction:column;font-size:12px;color:var(--mute);gap:3px}
+input[type=number]{width:96px;padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+button{font:inherit;font-weight:600;padding:8px 13px;border-radius:6px;border:1px solid var(--teal);background:var(--teal);color:#fff;cursor:pointer}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button{color:#06201c}}
+button.alt{background:transparent;color:var(--teal)}button.red{background:var(--red);border-color:var(--red);color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:3px solid var(--amb);outline-offset:2px}
+.sep{width:1px;align-self:stretch;background:var(--line);margin:0 4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.rule{background:var(--bg);border-left:4px solid var(--teal);padding:7px 10px;margin:8px 0 10px;font-size:13px}
+.stage{overflow-x:auto;border:1px dashed var(--line);border-radius:8px;min-height:250px;background:var(--bg)}
+svg{display:block;margin:0 auto}
+.edge{stroke:var(--mute);stroke-width:1.6}
+.nd circle{fill:var(--node);stroke-width:3;transition:fill .25s}
+.nd text{fill:var(--ink);text-anchor:middle;font-family:"IBM Plex Mono",monospace}
+.nd .big{font-size:13px;font-weight:500}.nd .sm{font-size:10px;fill:var(--mute)}
+.nd.cur circle{fill:var(--cur)}.nd.new circle{fill:var(--new)}.nd.swap circle{fill:var(--swap)}.nd.ok circle{fill:var(--ok)}
+.arr{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;min-height:48px}
+.cell{border:2px solid var(--line);border-radius:6px;padding:2px 7px;text-align:center;font:500 12px "IBM Plex Mono",monospace;background:var(--node)}
+.cell small{display:block;color:var(--mute);font-size:10px}
+.cell.cur{background:var(--cur)}.cell.swap{background:var(--swap)}.cell.new{background:var(--new)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:8px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+#log{max-height:230px;overflow:auto;font:13px/1.55 "IBM Plex Mono",monospace;display:flex;flex-direction:column;gap:3px}
+#log div{padding:2px 8px;border-left:3px solid var(--line)}
+#log .b{border-color:var(--teal)}#log .h{border-color:var(--red)}#log .g{border-color:var(--grn);font-weight:500}
+.cx{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12px}
+.cx span{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-family:"IBM Plex Mono",monospace}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:start}
+</style></head><body><main>
+<div class="top"><div>
+<h1>ER Desk: one hospital, two data structures</h1>
+<p class="mute">Every arriving patient goes into the <b>records room</b> (a binary search tree, searched by patient ID) and the <b>triage queue</b> (a max-heap, ordered by severity). Watch each operation step by step.</p></div>
+<button class="alt" id="theme" aria-label="Toggle theme">Theme</button></div>
+
+<div class="bar">
+<label>Patient ID (100–999)<input id="pid" type="number" min="100" max="999" placeholder="e.g. 450"></label>
+<label>Severity (1–10)<input id="psev" type="number" min="1" max="10" placeholder="e.g. 7"></label>
+<button id="admit">Admit patient</button>
+<button id="rand" class="alt">Admit random</button>
+<button id="seed" class="alt">Fill demo ward</button>
+<span class="sep"></span>
+<button id="treat" class="red">Treat most critical</button>
+<span class="sep"></span>
+<label>Find / discharge ID<input id="qid" type="number" min="100" max="999"></label>
+<button id="find" class="alt">Search record</button>
+<button id="del" class="alt">Delete record</button>
+<span class="sep"></span>
+<label>Speed<input id="spd" type="range" min="150" max="1200" value="650" style="width:100px"></label>
+<button id="reset" class="alt">Clear</button>
+</div>
+
+<div class="grid">
+<section class="panel"><h2>Records room: Binary Search Tree</h2>
+<div class="rule">Rule: smaller IDs go <b>left</b>, larger IDs go <b>right</b>. Finding a file means skipping half the remaining cabinet at every step.</div>
+<div class="stage" id="bst"></div>
+<div class="cx"><span>search / insert / delete: O(log n) balanced, O(n) worst</span><span id="bcount">0 records</span></div></section>
+
+<section class="panel"><h2>Triage queue: Max-Heap</h2>
+<div class="rule">Rule: every parent is <b>at least as severe</b> as its children, so the sickest patient is always at the top. Ties go to whoever arrived first.</div>
+<div class="stage" id="heap"></div>
+<div class="arr" id="arr" aria-label="Heap stored as array"></div>
+<div class="cx"><span>peek: O(1)</span><span>insert / treat next: O(log n)</span><span>children of i: 2i+1, 2i+2</span><span id="hcount">0 waiting</span></div></section>
+</div>
+
+<section class="panel" style="margin-top:14px"><h2>What is happening right now</h2>
+<div class="legend"><span><i style="background:var(--cur)"></i>being compared</span><span><i style="background:var(--new)"></i>just added</span><span><i style="background:var(--swap)"></i>swapping places</span><span><i style="background:var(--ok)"></i>found / treated</span><span>ring colour: <b style="color:var(--red)">critical 8+</b>, <b style="color:var(--amb)">urgent 5–7</b>, <b style="color:var(--grn)">stable</b></span></div>
+<div id="log" role="log" aria-live="polite" style="margin-top:10px"></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const NAMES=["Ana","Ben","Carla","Dev","Elena","Farid","Gia","Hiro","Iris","Jon","Kai","Lena","Mo","Nia","Omar","Pia","Raj","Sam","Tess","Uma"];
+let root=null,heap=[],hl={},seq=0,busy=false,names=new Set();
+const W=()=>+$('spd').value, sleep=ms=>new Promise(r=>setTimeout(r,ms)), wait=()=>sleep(W());
+const col=s=>s>=8?'var(--red)':s>=5?'var(--amb)':'var(--grn)';
+function log(m,c){const d=document.createElement('div');d.className=c||'';d.textContent=m;$('log').prepend(d)}
+function mk(p){return {id:p.id,name:p.name,sev:p.sev,seq:p.seq,l:null,r:null}}
+const better=(a,b)=>a.sev>b.sev||(a.sev===b.sev&&a.seq<b.seq);
+const nd=(x,y,top,bot,cls,ring)=>`<g class="nd ${cls||''}" transform="translate(${x},${y})"><circle r="21" style="stroke:${ring}"/><text class="big" y="4">${top}</text><text class="sm" y="36">${bot}</text></g>`;
+
+function drawBST(){
+ const out=[];let i=0,maxD=0;
+ (function walk(n,d){if(!n)return;walk(n.l,d+1);n.x=40+i++*46;n.y=34+d*66;maxD=Math.max(maxD,d);walk(n.r,d+1)})(root,0);
+ let edges='',nodes='';
+ (function w(n){if(!n)return;for(const c of [n.l,n.r])if(c){edges+=`<line class="edge" x1="${n.x}" y1="${n.y}" x2="${c.x}" y2="${c.y}"/>`;w(c)}nodes+=nd(n.x,n.y,n.id,n.name,hl[n.id],col(n.sev))})(root);
+ const w=Math.max(40+i*46,320),h=maxD*66+90;
+ $('bst').innerHTML=root?`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${edges}${nodes}</svg>`:'<p class="mute" style="padding:20px">The records room is empty. Admit a patient to file the first record.</p>';
+ $('bcount').textContent=i+(i===1?' record':' records');
+}
+function drawHeap(){
+ const Wd=560,pos=k=>{const l=Math.floor(Math.log2(k+1)),f=(1<<l)-1,p=k-f;return{x:(p+.5)/(1<<l)*Wd,y:34+l*66}};
+ let edges='',nodes='',lv=0;
+ heap.forEach((n,k)=>{const q=pos(k);lv=Math.max(lv,Math.floor(Math.log2(k+1)));if(k>0){const p=pos((k-1)>>1);edges+=`<line class="edge" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`}
+  nodes+=nd(q.x,q.y,n.sev,'#'+n.id+' '+n.name,hl[n.id],col(n.sev))});
+ $('heap').innerHTML=heap.length?`<svg width="${Wd}" height="${lv*66+90}" viewBox="0 0 ${Wd} ${lv*66+90}">${edges}${nodes}</svg>`:'<p class="mute" style="padding:20px">Nobody is waiting. Admit a patient to start the queue.</p>';
+ $('arr').innerHTML=heap.map((n,k)=>`<div class="cell ${hl[n.id]||''}"><small>[${k}]</small>${n.sev}<small>#${n.id}</small></div>`).join('');
+ $('hcount').textContent=heap.length+' waiting';
+}
+const draw=()=>{drawBST();drawHeap()};
+const mark=(m)=>{hl=m;draw()};
+
+function find(id,trace){let c=root,par=null,steps=0;return (async()=>{while(c){steps++;if(trace){mark({[c.id]:'cur'});await wait()}
+ if(id===c.id)return{n:c,par,steps};par=c;const dir=id<c.id?'l':'r';if(trace)log(`${id} ${id<c.id?'<':'>'} ${c.id}, so go ${dir==='l'?'left':'right'}`,'b');c=c[dir]}return{n:null,par,steps}})()}
+
+async function bstInsert(p){
+ if(!root){root=mk(p);mark({[p.id]:'new'});log(`BST: records room empty, #${p.id} becomes the root`,'b');await wait();return}
+ let c=root;
+ while(true){mark({[c.id]:'cur'});await wait();const dir=p.id<c.id?'l':'r';
+  log(`BST: ${p.id} ${dir==='l'?'<':'>'} ${c.id}, go ${dir==='l'?'left':'right'}`,'b');
+  if(!c[dir]){c[dir]=mk(p);mark({[p.id]:'new'});log(`BST: empty slot found, filed #${p.id}`,'b');await wait();return}
+  c=c[dir]}
+}
+async function heapInsert(p){
+ heap.push({id:p.id,name:p.name,sev:p.sev,seq:p.seq});let i=heap.length-1;
+ mark({[p.id]:'new'});log(`Heap: #${p.id} (severity ${p.sev}) joins at the last position`,'h');await wait();
+ while(i>0){const q=(i-1)>>1;mark({[heap[i].id]:'cur',[heap[q].id]:'cur'});await wait();
+  if(better(heap[i],heap[q])){log(`Heap: severity ${heap[i].sev} outranks parent ${heap[q].sev}, swap`,'h');
+   [heap[i],heap[q]]=[heap[q],heap[i]];mark({[heap[i].id]:'swap',[heap[q].id]:'swap'});await wait();i=q}
+  else{log(`Heap: parent ${heap[q].sev} is at least as severe, stop`,'h');break}}
+ mark({});
+}
+async function admit(id,sev){
+ if(busy)return;
+ if(!(id>=100&&id<=999)||!(sev>=1&&sev<=10)){log('Enter a patient ID from 100 to 999 and a severity from 1 to 10.');return}
+ if(names.has(id)){log(`ID ${id} is already on file. Use a different ID.`);return}
+ if(heap.length>=15){log('The queue holds 15 patients so the tree stays readable. Treat someone first.');return}
+ busy=true;lock();
+ const p={id,sev,name:NAMES[(id+seq)%NAMES.length],seq:seq++};names.add(id);
+ log(`Admitting ${p.name}, ID ${id}, severity ${sev}`,'g');
+ await bstInsert(p);await heapInsert(p);busy=false;lock();
+}
+async function treat(){
+ if(busy)return;if(!heap.length){log('Nobody is waiting in the queue.');return}
+ busy=true;lock();const top=heap[0];
+ mark({[top.id]:'ok'});log(`Heap: root is the most critical patient, #${top.id} ${top.name} (severity ${top.sev}). Treat now.`,'g');await wait();
+ const last=heap.length-1;
+ if(last>0){mark({[top.id]:'swap',[heap[last].id]:'swap'});log('Heap: move the last patient to the root, then remove the treated one','h');await wait();[heap[0],heap[last]]=[heap[last],heap[0]]}
+ heap.pop();mark({});await wait();let i=0;
+ while(true){const l=2*i+1,r=l+1;let b=i;if(l<heap.length&&better(heap[l],heap[b]))b=l;if(r<heap.length&&better(heap[r],heap[b]))b=r;
+  if(heap[i]){const m={[heap[i].id]:'cur'};if(heap[l])m[heap[l].id]='cur';if(heap[r])m[heap[r].id]='cur';mark(m);await wait()}
+  if(b===i){if(heap.length)log('Heap: both children are less severe, queue is valid again','h');break}
+  log(`Heap: ${heap[b].sev} beats ${heap[i].sev}, swap down`,'h');[heap[i],heap[b]]=[heap[b],heap[i]];mark({[heap[i].id]:'swap',[heap[b].id]:'swap'});await wait();i=b}
+ mark({});log(`${top.name}'s record stays in the records room until discharged.`);busy=false;lock();
+}
+async function search(){
+ if(busy)return;const id=+$('qid').value;if(!(id>=100&&id<=999)){log('Enter a patient ID to search for.');return}
+ busy=true;lock();log(`Searching the records room for ID ${id}`,'g');
+ const r=await find(id,true);
+ if(r.n){mark({[r.n.id]:'ok'});log(`Found #${id} (${r.n.name}) after ${r.steps} comparison${r.steps>1?'s':''}. A linear scan could need up to ${names.size}.`,'g')}
+ else{mark({});log(`ID ${id} is not on file. Checked ${r.steps} node${r.steps===1?'':'s'}.`)}
+ await wait();mark({});busy=false;lock();
+}
+async function remove(){
+ if(busy)return;const id=+$('qid').value;if(!names.has(id)){log('That ID is not on file. Enter an ID that appears in the tree.');return}
+ busy=true;lock();log(`Discharging ID ${id}: first locate the record`,'g');
+ const {n,par}=await find(id,true);mark({[n.id]:'swap'});await wait();
+ const setChild=(p,old,v)=>{if(!p)root=v;else if(p.l===old)p.l=v;else p.r=v};
+ if(!n.l&&!n.r){log('BST delete, case 1: leaf. Simply remove it.','b');setChild(par,n,null)}
+ else if(!n.l||!n.r){log('BST delete, case 2: one child. The child takes its place.','b');setChild(par,n,n.l||n.r)}
+ else{log('BST delete, case 3: two children. Find the in-order successor (smallest ID in the right subtree).','b');
+  let s=n.r,sp=n;mark({[n.id]:'swap',[s.id]:'cur'});await wait();
+  while(s.l){sp=s;s=s.l;mark({[n.id]:'swap',[s.id]:'cur'});await wait()}
+  log(`Successor is #${s.id}. Copy it into the deleted node's place, then remove the successor.`,'b');
+  if(sp===n)sp.r=s.r;else sp.l=s.r;
+  n.id=s.id;n.name=s.name;n.sev=s.sev;n.seq=s.seq;mark({[n.id]:'new'});await wait()}
+ names.delete(id);
+ const hi=heap.findIndex(x=>x.id===id);
+ if(hi>=0){log('Patient was still waiting, so they leave the heap too. Rebuilding the queue.','h');
+  heap.splice(hi,1);const rest=heap.slice();heap=[];for(const x of rest){heap.push(x);let i=heap.length-1;while(i>0){const q=(i-1)>>1;if(better(heap[i],heap[q])){[heap[i],heap[q]]=[heap[q],heap[i]];i=q}else break}}}
+ mark({});log(`Record ${id} removed.`,'g');busy=false;lock();
+}
+function lock(){document.querySelectorAll('button:not(#theme)').forEach(b=>b.disabled=busy&&b.id!=='reset')}
+function clearAll(){root=null;heap=[];hl={};seq=0;names=new Set();busy=false;lock();$('log').innerHTML='';draw();log('Ward cleared. Admit a patient to begin.')}
+$('admit').onclick=()=>{admit(+$('pid').value,+$('psev').value);$('pid').value='';$('psev').value=''};
+$('rand').onclick=()=>{let id;do id=100+Math.floor(Math.random()*900);while(names.has(id));admit(id,1+Math.floor(Math.random()*10))};
+$('seed').onclick=async()=>{if(busy)return;for(const [i,s] of [[450,5],[300,9],[600,3],[200,7],[350,10],[520,6],[700,2]]){if(!names.has(i)&&heap.length<15){while(busy)await sleep(50);await admit(i,s)}}};
+$('treat').onclick=treat;$('find').onclick=search;$('del').onclick=remove;$('reset').onclick=clearAll;
+$('theme').onclick=()=>{const d=document.documentElement,dark=d.dataset.theme?d.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;d.dataset.theme=dark?'light':'dark'};
+clearAll();
+</script></body></html>
